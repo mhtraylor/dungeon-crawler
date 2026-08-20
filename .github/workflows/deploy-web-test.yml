@@ -1,0 +1,64 @@
+name: Build & Deploy Godot Web QA Version
+run-name: ${{ github.actor }} deploying QA build
+on:
+  push:
+    branches: [ qa ]
+    tags: [ 'v*' ]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # Determine build version
+      - name: Determine build version
+        id: version
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+          else
+            VERSION="dev-$(date +%Y%m%d-%H%M%S)-${{ github.sha }}"
+            VERSION="${VERSION:0:30}"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Build version: $VERSION"
+
+      - name: Setup Godot
+        uses: chickensoft-games/setup-godot@v1
+        with:
+          version: 4.7.1
+          use-dotnet: false
+
+      - name: Create build dir
+        run: mkdir -p build/web
+
+      - name: Export build
+        run: |
+          godot --headless --export-debug Web build/web/index.html
+
+      - name: Verify build
+        run: |
+          ls -lah build/web
+          test -f build/web/index.html || exit 1
+
+      - name: Upload to Github Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'build/web'
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page.url }}
+    steps:
+      - name: Deploy to Github Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
