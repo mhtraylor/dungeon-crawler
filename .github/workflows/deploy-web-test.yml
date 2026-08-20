@@ -40,7 +40,7 @@ jobs:
 
       - name: Export build
         run: |
-          godot --headless --export-debug Web build/web/index.html
+          godot --headless --path ./game/ --export-debug Web build/web/index.html
 
       - name: Verify build
         run: |
