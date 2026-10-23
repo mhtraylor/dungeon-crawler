@@ -35,12 +35,6 @@ jobs:
       - name: Create build dir
         run: mkdir -p build/web
 
-      # Add coi-service-worker
-      - name: Add coi-service-worker
-        run: |
-          curl -H 'Accept: application/vnd.github.v3.raw' -O --output-dir ./build/web -L 'https://raw.githubusercontent.com/gzuidhof/coi-serviceworker/refs/heads/master/coi-serviceworker.min.js'
-          sed -i '3 i <script src="coi-serviceworker.min.js"></script>' build/web/index.html
-
       # Export Godot build
       - name: Export 
         id: export
@@ -55,6 +49,12 @@ jobs:
           verbose: true
           presets_to_export: Web
 
+      # Add coi-service-worker
+      - name: Add coi-service-worker
+        run: |
+          curl -H 'Accept: application/vnd.github.v3.raw' -O --output-dir ./build/web -L 'https://raw.githubusercontent.com/gzuidhof/coi-serviceworker/refs/heads/master/coi-serviceworker.min.js'
+          sed -i '3 i <script src="coi-serviceworker.min.js"></script>' build/web/index.html
+          
       # Verify build output
       - name: Verify build
         run: |
