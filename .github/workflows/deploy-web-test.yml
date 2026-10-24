@@ -62,14 +62,22 @@ jobs:
           curl -H 'Accept: application/vnd.github.v3.raw' -sS -O --output-dir ./build/web -L https://raw.githubusercontent.com/gzuidhof/coi-serviceworker/refs/heads/master/coi-serviceworker.min.js
           test -f ./build/web/coi-serviceworker.min.js || exit 1
           sed -i '3 i <script src="coi-serviceworker.min.js"></script>' ./build/web/index.html
-          
-      # Deploy build to Github Pages
-      - name: Publish
-        uses: peaceiris/actions-gh-pages@v3.9.3
+
+      # Upload artifact
+      - name: Upload
+        id: deployment
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build/web
-          force_orphan: true
-          user_name: "github-ci[bot]"
-          user_email: "github-actions[bot]@users.noreply.github.com"
-          commit_message: "Publish QA web build to gh-pages"
+          path: ./build/web
+          
+  # Deploy build to Github Pages
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
