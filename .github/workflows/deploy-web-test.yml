@@ -25,12 +25,28 @@ jobs:
           if [[ "${{ github.ref }}" == refs/tags/* ]]; then
             VERSION=${GITHUB_REF#refs/tags/v}
           else
-            VERSION="dev-$(date +%Y%m%d-%H%M%S)-${{ github.sha }}"
+            VERSION="qa-$(date +%Y%m%d-%H%M%S)-${{ github.sha }}"
             VERSION="${VERSION:0:30}"
           fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Build version: $VERSION"
 
+      # Add version info to project
+      - name: Add version
+        run: |
+          cat > ./game/version.gd << 'EOF'
+          extends Node
+  
+          const VERSION   = "${{ steps.version.outputs.version }}"
+          const TIMESTAMP = "${{ github.event.head_commit.timestamp }}"
+          const COMMIT    = "${{ github.sha }}"
+  
+          func get_version() -> String:
+             return "v" + VERSION
+          func get_build_info() -> String:
+             return VERSION + "-" + TIME + "-" + COMMIT
+          EOF
+          
       # Create build dir
       - name: Create build dir
         run: mkdir -p ./build
@@ -55,7 +71,7 @@ jobs:
         run: |
           ls -lahR ./build
           test -f ./build/web/index.html || exit 1
-          
+
       # Add coi-service-worker
       - name: Add coi-service-worker
         run: |
