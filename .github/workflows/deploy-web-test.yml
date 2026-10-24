@@ -52,7 +52,7 @@ jobs:
       # Add coi-service-worker
       - name: Add coi-service-worker
         run: |
-          ls -lah
+          ls -lahR ./build
           curl -H 'Accept: application/vnd.github.v3.raw' -sS -O --output-dir /home/runner/work/dungeon-crawler/dungeon-crawler/build/web -L https://raw.githubusercontent.com/gzuidhof/coi-serviceworker/refs/heads/master/coi-serviceworker.min.js
           sed -i '3 i <script src="coi-serviceworker.min.js"></script>' /home/runner/work/dungeon-crawler/dungeon-crawler/build/web/index.html
           
