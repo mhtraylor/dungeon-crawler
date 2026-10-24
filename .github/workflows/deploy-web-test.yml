@@ -44,7 +44,7 @@ jobs:
           func get_version() -> String:
              return "v" + VERSION
           func get_build_info() -> String:
-             return VERSION + "-" + TIME + "-" + COMMIT
+             return VERSION + "-" + TIMESTAMP + "-" + COMMIT
           EOF
           
       # Create build dir
