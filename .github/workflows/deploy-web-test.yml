@@ -47,7 +47,7 @@ jobs:
           export_debug: true
           use_preset_export_path: true
           verbose: true
-          presets_to_export: Web
+          presets_to_export: web
 
       # Add coi-service-worker
       - name: Add coi-service-worker
